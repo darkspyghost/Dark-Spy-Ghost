@@ -21,9 +21,9 @@
   #hero{overflow:hidden;}
   .aurora{position:absolute;inset:0;z-index:0;filter:blur(60px);opacity:.55;}
   .aurora span{position:absolute;width:60vw;height:60vw;border-radius:50%;}
-  .a1{background:var(--teal);top:-20%;left:-10%;animation:float1 14s ease-in-out infinite;}
-  .a2{background:var(--violet);bottom:-25%;right:-10%;animation:float2 18s ease-in-out infinite;}
-  .a3{background:var(--gold);top:30%;left:40%;width:40vw;height:40vw;animation:float3 11s ease-in-out infinite;}
+  .a1{background:var(--teal);top:-20%;left:-10%;animation:float1 14s ease-in-out infinite;will-change:transform;}
+  .a2{background:var(--violet);bottom:-25%;right:-10%;animation:float2 18s ease-in-out infinite;will-change:transform;}
+  .a3{background:var(--gold);top:30%;left:40%;width:40vw;height:40vw;animation:float3 11s ease-in-out infinite;will-change:transform;}
   @keyframes float1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(10vw,8vh) scale(1.15)}}
   @keyframes float2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-8vw,-10vh) scale(1.1)}}
   @keyframes float3{0%,100%{transform:translate(-5vw,0) scale(.9)}50%{transform:translate(5vw,6vh) scale(1.2)}}
@@ -34,7 +34,7 @@
   .blob{width:min(60vw,260px);height:min(60vw,260px);
     background:linear-gradient(135deg,var(--teal),var(--violet));
     animation: morph 8s ease-in-out infinite, drift 6s ease-in-out infinite;
-    box-shadow:0 30px 70px rgba(63,216,201,.25);}
+    box-shadow:0 30px 70px rgba(63,216,201,.25);will-change:clip-path,transform;}
   @keyframes morph{
     0%,100%{clip-path:polygon(60% 0%,100% 35%,88% 85%,45% 100%,8% 75%,0% 30%);}
     33%{clip-path:polygon(45% 0%,90% 15%,100% 60%,70% 100%,20% 92%,0% 50%);}
@@ -65,10 +65,36 @@
     background:linear-gradient(140deg, #14204a, #1c2a5c);
     border:1px solid rgba(224,180,99,.35);
     display:flex;align-items:center;justify-content:center;
-    font-weight:600;color:var(--gold);letter-spacing:1px;
     transform-style:preserve-3d;transition:transform .15s ease-out;
-    animation:idle 5s ease-in-out infinite;}
+    animation:idle 5s ease-in-out infinite;
+    touch-action:none;will-change:transform;}
   @keyframes idle{0%,100%{transform:rotateX(4deg) rotateY(-6deg)}50%{transform:rotateX(-4deg) rotateY(6deg)}}
+
+  /* --- idea 7: liquid gradient inside text --- */
+  .liquid{font-size:clamp(2rem,7vw,3.4rem);font-weight:800;
+    background:linear-gradient(180deg,var(--violet) 0%,var(--teal) 35%,var(--gold) 70%,var(--violet) 100%);
+    background-size:100% 300%;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:liquidMove 6s ease-in-out infinite;}
+  @keyframes liquidMove{0%,100%{background-position:0 0%}50%{background-position:0 100%}}
+
+  /* --- idea 8: neon pulse frame --- */
+  .neon{width:min(70vw,320px);padding:34px 20px;border-radius:14px;text-align:center;
+    border:2px solid var(--teal);font-weight:600;
+    animation:neonPulse 2.6s ease-in-out infinite;}
+  @keyframes neonPulse{
+    0%,100%{box-shadow:0 0 8px var(--teal), inset 0 0 8px rgba(63,216,201,.3);border-color:var(--teal);}
+    50%{box-shadow:0 0 28px var(--violet), inset 0 0 16px rgba(155,127,224,.5);border-color:var(--violet);}}
+
+  /* --- idea 9: orbiting ring text (SVG textPath) --- */
+  .orbit{width:min(60vw,240px);animation:spin 14s linear infinite;will-change:transform;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* --- idea 10: ripple grid, wave passes through via staggered CSS delays --- */
+  .ripple-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;width:min(80vw,360px);}
+  .ripple-grid .t{aspect-ratio:1;border-radius:4px;background:var(--violet);opacity:.2;
+    animation:tilePulse 3.6s ease-in-out infinite;}
+  @keyframes tilePulse{0%,100%{opacity:.15;transform:scale(.85);}
+    50%{opacity:.9;transform:scale(1);background:var(--teal);}}
 
   /* --- footer marquee loop --- */
   .marquee{width:100%;overflow:hidden;padding:0;min-height:auto;position:relative;}
@@ -77,12 +103,21 @@
     color:transparent;-webkit-text-stroke:1px rgba(242,244,250,.5);}
   @keyframes scroll{to{transform:translateX(-50%);}}
 
+  .grain{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");}
+
+  .tilt .word{display:flex;justify-content:center;gap:2px;}
+  .tilt .word span{display:inline-block;font-weight:700;letter-spacing:.5px;color:var(--gold);
+    text-shadow:1px 1px 0 rgba(224,180,99,.55),2px 2px 0 rgba(224,180,99,.35),
+      3px 3px 5px rgba(0,0,0,.55),0 0 18px rgba(224,180,99,.25);}
+
   @media (prefers-reduced-motion: reduce){
     .aurora span,.blob,.sig path,.tilt{animation:none !important;}
   }
 </style>
 </head>
 <body>
+<div class="grain"></div>
 
 <section id="hero">
   <div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
@@ -117,7 +152,34 @@
 
 <section>
   <p class="tag">idea 6 — tilt it, touch it</p>
-  <div class="tilt-wrap"><div class="tilt" id="tiltCard">SPY GHOST</div></div>
+  <div class="tilt-wrap"><div class="tilt" id="tiltCard"><span class="word" id="tiltWord"></span></div></div>
+</section>
+
+<section>
+  <p class="tag">idea 7 — color, alive inside the letters</p>
+  <div class="liquid">FLOW</div>
+</section>
+
+<section>
+  <p class="tag">idea 8 — light that breathes</p>
+  <div class="neon">ALWAYS SCANNING</div>
+</section>
+
+<section>
+  <p class="tag">idea 9 — words in orbit</p>
+  <svg class="orbit" viewBox="0 0 200 200">
+    <defs><path id="circlePath" d="M100,100 m-70,0 a70,70 0 1,1 140,0 a70,70 0 1,1 -140,0"/></defs>
+    <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(224,180,99,.25)" stroke-width="1"/>
+    <text font-size="13" fill="var(--teal)" letter-spacing="3">
+      <textPath href="#circlePath" startOffset="0%">SPY GHOST • CREATIVE • UNLIMITED • </textPath>
+    </text>
+    <circle cx="100" cy="100" r="6" fill="var(--gold)"/>
+  </svg>
+</section>
+
+<section>
+  <p class="tag">idea 10 — a wave that lives in a grid</p>
+  <div class="ripple-grid" id="rippleGrid"></div>
 </section>
 
 <section class="marquee">
@@ -153,27 +215,46 @@
   run(words[0]);
 })();
 
-// idea 4: ambient particle constellation, continuous
+// idea 4: ambient particle constellation — ResizeObserver-based sizing fixes the
+// intermittent "squished into a thin strip" bug (old version could read clientWidth
+// before layout had settled). Also pauses fully when off-screen.
 (function(){
   const c = document.getElementById('net');
-  const ctx = c.getContext('2d');
-  function size(){ c.width = c.clientWidth; c.height = c.clientHeight; }
-  size(); window.addEventListener('resize', size);
+  const ctx = c.getContext('2d', {alpha:false});
   const N = 40, LINK = 90;
-  let pts = [];
-  function init(){
+  let W=1, H=1, dpr=1, pts=[], active=true;
+
+  function makePoints(){
     pts = Array.from({length:N},()=>({
-      x:Math.random()*c.width, y:Math.random()*c.height,
+      x:Math.random()*W, y:Math.random()*H,
       vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4
     }));
   }
-  init();
+  function size(){
+    const r = c.getBoundingClientRect();
+    if(r.width < 2 || r.height < 2) return; // ignore bogus pre-layout reads
+    dpr = Math.min(window.devicePixelRatio||1, 2);
+    W = r.width; H = r.height;
+    c.width = Math.round(W*dpr); c.height = Math.round(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    if(!pts.length) makePoints();
+  }
+  size();
+  // fires on any real layout change (fonts, reflow, orientation) — not just window resize
+  new ResizeObserver(size).observe(c);
+
+  new IntersectionObserver((entries)=>{
+    active = entries[0].isIntersecting;
+    if(active) requestAnimationFrame(loop);
+  },{threshold:0.05}).observe(c);
+
   function loop(){
-    ctx.fillStyle='#0d1530'; ctx.fillRect(0,0,c.width,c.height);
+    if(!active) return;
+    ctx.fillStyle='#0d1530'; ctx.fillRect(0,0,W,H);
     for(const p of pts){
       p.x+=p.vx; p.y+=p.vy;
-      if(p.x<0||p.x>c.width) p.vx*=-1;
-      if(p.y<0||p.y>c.height) p.vy*=-1;
+      if(p.x<0||p.x>W) p.vx*=-1;
+      if(p.y<0||p.y>H) p.vy*=-1;
     }
     for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
       const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y, d=Math.hypot(dx,dy);
@@ -187,6 +268,35 @@
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
+})();
+
+// idea 10: staggered ripple grid — built once as plain DOM + CSS animation-delay,
+// the wave itself costs nothing at runtime (pure CSS, no JS loop)
+(function(){
+  const grid = document.getElementById('rippleGrid');
+  const cols=8, rows=4, cx=(cols-1)/2, cy=(rows-1)/2;
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    const d = Math.hypot(c-cx, r-cy);
+    const tile = document.createElement('div');
+    tile.className = 't';
+    tile.style.animationDelay = (d*0.15)+'s';
+    grid.appendChild(tile);
+  }
+})();
+
+// build the curved 3D "SPY GHOST" lettering once (static, no runtime cost)
+(function(){
+  const word = "SPY GHOST";
+  const el = document.getElementById('tiltWord');
+  const mid = (word.length-1)/2;
+  word.split('').forEach((ch,i)=>{
+    const span = document.createElement('span');
+    span.textContent = ch === ' ' ? '\u00A0' : ch;
+    const off = i - mid;
+    const rise = (1 - Math.pow(off/mid, 2)) * 9;
+    span.style.transform = `translateY(${-rise}px) rotate(${off*2.2}deg)`;
+    el.appendChild(span);
+  });
 })();
 
 // idea 5: live updating clock, no reload ever needed
@@ -203,20 +313,42 @@
   setInterval(render, 1000);
 })();
 
-// idea 6: magnetic tilt following pointer, gentle idle float otherwise
+// idea 6: magnetic tilt. Fix: the old version measured card.getBoundingClientRect()
+// on every move — but the card itself is what's being 3D-rotated, so its own rect
+// warps as it spins, feeding back into the math and causing that "jams up around
+// 180°, won't settle till you let go" behavior. Fix is to measure the WRAPPER
+// (which never gets the transform, so its rect is always stable) and only once
+// per gesture, not every frame. Locks page scroll only while a finger is on the card.
 (function(){
   const card = document.getElementById('tiltCard');
-  function tilt(e){
-    const r = card.getBoundingClientRect();
-    const x = ((e.clientX ?? (e.touches&&e.touches[0].clientX)) - r.left)/r.width;
-    const y = ((e.clientY ?? (e.touches&&e.touches[0].clientY)) - r.top)/r.height;
+  const wrap = card.parentElement;
+  let rect = null;
+
+  function start(e){
+    rect = wrap.getBoundingClientRect();
     card.style.animation = 'none';
-    card.style.transform = `rotateY(${(x-.5)*24}deg) rotateX(${(.5-y)*24}deg)`;
   }
-  card.addEventListener('mousemove', tilt);
-  card.addEventListener('touchmove', tilt, {passive:true});
-  function release(){ card.style.transform=''; card.style.animation='idle 5s ease-in-out infinite'; }
+  function tilt(e){
+    if(!rect) return;
+    if(e.cancelable) e.preventDefault(); // locks scroll while dragging the card
+    const p = e.touches ? e.touches[0] : e;
+    const x = (p.clientX - rect.left)/rect.width;
+    const y = (p.clientY - rect.top)/rect.height;
+    const cx = Math.min(1, Math.max(0, x));
+    const cy = Math.min(1, Math.max(0, y));
+    card.style.transform = `rotateY(${(cx-.5)*40}deg) rotateX(${(.5-cy)*40}deg)`;
+  }
+  function release(){
+    rect = null;
+    card.style.transform='';
+    card.style.animation='idle 5s ease-in-out infinite';
+  }
+  card.addEventListener('mousedown', start);
+  card.addEventListener('mousemove', (e)=>{ if(rect) tilt(e); });
   card.addEventListener('mouseleave', release);
+  card.addEventListener('mouseup', release);
+  card.addEventListener('touchstart', start, {passive:true});
+  card.addEventListener('touchmove', tilt, {passive:false});
   card.addEventListener('touchend', release);
 })();
 </script>
