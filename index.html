@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spy Ghost</title>
+<style>
+  :root{
+    --bg:#0a1024; --teal:#3fd8c9; --violet:#9b7fe0; --gold:#e0b463; --ink:#f2f4fa;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);overflow-x:hidden;
+    font-family:-apple-system,'Segoe UI',sans-serif;}
+  section{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:90px 22px;position:relative;text-align:center;gap:26px;}
+  h2{font-weight:600;font-size:clamp(1.3rem,4vw,1.9rem);margin:0;letter-spacing:.5px;}
+  p.tag{font-size:.85rem;color:#9fb0d6;letter-spacing:1.5px;text-transform:uppercase;margin:0;}
+
+  /* --- 1: aurora gradient background (loops forever, no video needed) --- */
+  #hero{overflow:hidden;}
+  .aurora{position:absolute;inset:0;z-index:0;filter:blur(60px);opacity:.55;}
+  .aurora span{position:absolute;width:60vw;height:60vw;border-radius:50%;}
+  .a1{background:var(--teal);top:-20%;left:-10%;animation:float1 14s ease-in-out infinite;}
+  .a2{background:var(--violet);bottom:-25%;right:-10%;animation:float2 18s ease-in-out infinite;}
+  .a3{background:var(--gold);top:30%;left:40%;width:40vw;height:40vw;animation:float3 11s ease-in-out infinite;}
+  @keyframes float1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(10vw,8vh) scale(1.15)}}
+  @keyframes float2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-8vw,-10vh) scale(1.1)}}
+  @keyframes float3{0%,100%{transform:translate(-5vw,0) scale(.9)}50%{transform:translate(5vw,6vh) scale(1.2)}}
+  .scramble{position:relative;z-index:1;font-size:clamp(2.2rem,7vw,4rem);font-weight:700;letter-spacing:1px;
+    min-height:1.3em;}
+
+  /* --- 2: morphing blob --- */
+  .blob{width:min(60vw,260px);height:min(60vw,260px);
+    background:linear-gradient(135deg,var(--teal),var(--violet));
+    animation: morph 8s ease-in-out infinite, drift 6s ease-in-out infinite;
+    box-shadow:0 30px 70px rgba(63,216,201,.25);}
+  @keyframes morph{
+    0%,100%{clip-path:polygon(60% 0%,100% 35%,88% 85%,45% 100%,8% 75%,0% 30%);}
+    33%{clip-path:polygon(45% 0%,90% 15%,100% 60%,70% 100%,20% 92%,0% 50%);}
+    66%{clip-path:polygon(30% 5%,75% 0%,100% 45%,85% 95%,35% 100%,0% 60%);}
+  }
+  @keyframes drift{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-16px) rotate(6deg)}}
+
+  /* --- 3: SVG signature draw loop --- */
+  .sig{width:min(80vw,420px);}
+  .sig path{fill:none;stroke:url(#g1);stroke-width:3;stroke-linecap:round;
+    stroke-dasharray:1000;stroke-dashoffset:1000;
+    animation:draw 5s ease-in-out infinite alternate;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+
+  /* --- 4: particle constellation canvas --- */
+  canvas#net{width:100%;max-width:560px;height:280px;border-radius:14px;
+    background:#0d1530;display:block;}
+
+  /* --- 5: live flip clock --- */
+  .clock{display:flex;gap:8px;font-variant-numeric:tabular-nums;}
+  .clock .u{background:#101a38;border:1px solid rgba(155,127,224,.35);border-radius:8px;
+    padding:10px 4px;font-size:clamp(1.6rem,6vw,2.6rem);font-weight:700;min-width:1.3ch;text-align:center;}
+  .clock .sep{font-size:clamp(1.6rem,6vw,2.6rem);opacity:.5;align-self:center;}
+
+  /* --- 6: magnetic tilt card --- */
+  .tilt-wrap{perspective:800px;}
+  .tilt{width:min(78vw,300px);height:180px;border-radius:16px;
+    background:linear-gradient(140deg, #14204a, #1c2a5c);
+    border:1px solid rgba(224,180,99,.35);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:600;color:var(--gold);letter-spacing:1px;
+    transform-style:preserve-3d;transition:transform .15s ease-out;
+    animation:idle 5s ease-in-out infinite;}
+  @keyframes idle{0%,100%{transform:rotateX(4deg) rotateY(-6deg)}50%{transform:rotateX(-4deg) rotateY(6deg)}}
+
+  /* --- footer marquee loop --- */
+  .marquee{width:100%;overflow:hidden;padding:0;min-height:auto;position:relative;}
+  .marquee .track{display:flex;white-space:nowrap;animation:scroll 16s linear infinite;}
+  .marquee span{font-size:clamp(1.4rem,5vw,2.4rem);font-weight:700;padding:0 30px;
+    color:transparent;-webkit-text-stroke:1px rgba(242,244,250,.5);}
+  @keyframes scroll{to{transform:translateX(-50%);}}
+
+  @media (prefers-reduced-motion: reduce){
+    .aurora span,.blob,.sig path,.tilt{animation:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<section id="hero">
+  <div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+  <p class="tag" style="position:relative;z-index:1;">idea 1 — living gradient</p>
+  <div class="scramble" id="scr"></div>
+</section>
+
+<section>
+  <p class="tag">idea 2 — shape that never sits still</p>
+  <div class="blob"></div>
+</section>
+
+<section>
+  <p class="tag">idea 3 — a line that keeps signing itself</p>
+  <svg class="sig" viewBox="0 0 400 120">
+    <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--teal)"/><stop offset="1" stop-color="var(--violet)"/>
+    </linearGradient></defs>
+    <path d="M20,90 C60,10 90,110 130,60 S190,10 230,70 S300,110 340,40 S380,90 390,60"/>
+  </svg>
+</section>
+
+<section>
+  <p class="tag">idea 4 — a sky that connects itself</p>
+  <canvas id="net"></canvas>
+</section>
+
+<section>
+  <p class="tag">idea 5 — time, actually live</p>
+  <div class="clock" id="clock"></div>
+</section>
+
+<section>
+  <p class="tag">idea 6 — tilt it, touch it</p>
+  <div class="tilt-wrap"><div class="tilt" id="tiltCard">SPY GHOST</div></div>
+</section>
+
+<section class="marquee">
+  <div class="track">
+    <span>CREATIVE · UNLIMITED · SPY GHOST · </span>
+    <span>CREATIVE · UNLIMITED · SPY GHOST · </span>
+  </div>
+</section>
+
+<script>
+// idea 1: continuous scramble/decode cycling headline
+(function(){
+  const words = ['CREATIVE','UNLIMITED','ALWAYS ON','SPY GHOST'];
+  const el = document.getElementById('scr');
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let wi = 0;
+  function run(word){
+    let frame = 0;
+    const total = 18;
+    const iv = setInterval(()=>{
+      frame++;
+      el.textContent = word.split('').map((c,i)=>{
+        if(c===' ') return ' ';
+        const reveal = (frame/total)*word.length;
+        return i < reveal ? c : chars[Math.floor(Math.random()*chars.length)];
+      }).join('');
+      if(frame>=total){
+        clearInterval(iv);
+        setTimeout(()=>{ wi=(wi+1)%words.length; run(words[wi]); }, 1400);
+      }
+    }, 45);
+  }
+  run(words[0]);
+})();
+
+// idea 4: ambient particle constellation, continuous
+(function(){
+  const c = document.getElementById('net');
+  const ctx = c.getContext('2d');
+  function size(){ c.width = c.clientWidth; c.height = c.clientHeight; }
+  size(); window.addEventListener('resize', size);
+  const N = 40, LINK = 90;
+  let pts = [];
+  function init(){
+    pts = Array.from({length:N},()=>({
+      x:Math.random()*c.width, y:Math.random()*c.height,
+      vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4
+    }));
+  }
+  init();
+  function loop(){
+    ctx.fillStyle='#0d1530'; ctx.fillRect(0,0,c.width,c.height);
+    for(const p of pts){
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>c.width) p.vx*=-1;
+      if(p.y<0||p.y>c.height) p.vy*=-1;
+    }
+    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y, d=Math.hypot(dx,dy);
+      if(d<LINK){
+        ctx.strokeStyle = `rgba(63,216,201,${1-d/LINK})`;
+        ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y); ctx.stroke();
+      }
+    }
+    ctx.fillStyle='#e0b463';
+    for(const p of pts){ ctx.beginPath(); ctx.arc(p.x,p.y,1.8,0,Math.PI*2); ctx.fill(); }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+// idea 5: live updating clock, no reload ever needed
+(function(){
+  const el = document.getElementById('clock');
+  function render(){
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    const ss = String(d.getSeconds()).padStart(2,'0');
+    el.innerHTML = `<div class="u">${hh}</div><div class="sep">:</div><div class="u">${mm}</div><div class="sep">:</div><div class="u">${ss}</div>`;
+  }
+  render();
+  setInterval(render, 1000);
+})();
+
+// idea 6: magnetic tilt following pointer, gentle idle float otherwise
+(function(){
+  const card = document.getElementById('tiltCard');
+  function tilt(e){
+    const r = card.getBoundingClientRect();
+    const x = ((e.clientX ?? (e.touches&&e.touches[0].clientX)) - r.left)/r.width;
+    const y = ((e.clientY ?? (e.touches&&e.touches[0].clientY)) - r.top)/r.height;
+    card.style.animation = 'none';
+    card.style.transform = `rotateY(${(x-.5)*24}deg) rotateX(${(.5-y)*24}deg)`;
+  }
+  card.addEventListener('mousemove', tilt);
+  card.addEventListener('touchmove', tilt, {passive:true});
+  function release(){ card.style.transform=''; card.style.animation='idle 5s ease-in-out infinite'; }
+  card.addEventListener('mouseleave', release);
+  card.addEventListener('touchend', release);
+})();
+</script>
+</body>
+</html>
